@@ -1,0 +1,116 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-crypto}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crypto}
+      POSTGRES_DB: ${POSTGRES_DB:-crypto_om}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  nats:
+    image: nats:2
+    command: ['-m', '8222']
+    ports:
+      - '4222:4222'
+      - '8222:8222'
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["uvicorn", "services.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-crypto}:${POSTGRES_PASSWORD:-crypto}@db:5432/${POSTGRES_DB:-crypto_om}
+      - REDIS_URL=redis://redis:6379/0
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - db
+      - redis
+      - nats
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/app
+
+  data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "services.data.fetcher"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-crypto}:${POSTGRES_PASSWORD:-crypto}@db:5432/${POSTGRES_DB:-crypto_om}
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - db
+      - nats
+    volumes:
+      - .:/app
+
+  signals:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "services.signals"]
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+    volumes:
+      - .:/app
+
+  risk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "services.risk.risk_manager"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-crypto}:${POSTGRES_PASSWORD:-crypto}@db:5432/${POSTGRES_DB:-crypto_om}
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - db
+      - nats
+    volumes:
+      - .:/app
+
+  execution:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "services.execution.order_router"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-crypto}:${POSTGRES_PASSWORD:-crypto}@db:5432/${POSTGRES_DB:-crypto_om}
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - db
+      - nats
+    volumes:
+      - .:/app
+
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "services.workers.scheduler"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-crypto}:${POSTGRES_PASSWORD:-crypto}@db:5432/${POSTGRES_DB:-crypto_om}
+      - REDIS_URL=redis://redis:6379/0
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - db
+      - redis
+      - nats
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:
+    driver: local
