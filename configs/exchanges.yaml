@@ -1,0 +1,28 @@
+# Exchange configuration including API endpoints, fee tiers and markets
+
+binance:
+  api_key: ${BINANCE_API_KEY}
+  api_secret: ${BINANCE_API_SECRET}
+  fee_maker: 0.0002          # 0.02%
+  fee_taker: 0.0005          # 0.05%
+  markets:
+    - BTC/USDT
+    - ETH/USDT
+
+kraken:
+  api_key: ${KRAKEN_API_KEY}
+  api_secret: ${KRAKEN_API_SECRET}
+  fee_maker: 0.00016         # 0.016%
+  fee_taker: 0.0026          # 0.26%
+  markets:
+    - BTC/USD
+    - ETH/USD
+
+pionex:
+  api_key: ${PIONEX_API_KEY}
+  api_secret: ${PIONEX_API_SECRET}
+  fee_maker: 0.0001          # 0.01%
+  fee_taker: 0.0003          # 0.03%
+  markets:
+    - BTC/USDT
+    - ETH/USDT

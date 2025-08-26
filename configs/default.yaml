@@ -1,0 +1,40 @@
+# Default strategy parameters and risk settings
+
+strategies:
+  basis:
+    entry_threshold: 0.02        # annualised basis threshold (2%)
+    exit_threshold: 0.005        # exit when basis <0.5%
+    max_leverage: 2
+    capital_fraction: 0.1        # 10% of portfolio
+
+  funding:
+    entry_threshold: 0.0001      # 0.01% per funding interval (~4% APY)
+    exit_threshold: 0.0          # exit when funding flips sign
+    capital_fraction: 0.1
+
+  statarb:
+    entry_zscore: 2.0
+    exit_zscore: 0.0
+    capital_fraction: 0.1
+
+  trend:
+    short_ma: 50
+    long_ma: 200
+    rsi_period: 14
+    rsi_overbought: 70
+    rsi_oversold: 30
+    capital_fraction: 0.05
+
+  liquidity:
+    grid_levels: 5
+    price_step_pct: 0.005        # 0.5% grid spacing
+    hedge_ratio: 1.0             # fully hedge inventory
+    capital_fraction: 0.1
+
+risk:
+  max_trade_risk: 0.05           # 5% of total capital per trade
+  max_daily_drawdown: 0.1        # 10% daily
+  max_weekly_drawdown: 0.2       # 20% weekly
+  max_system_drawdown: 0.3       # 30% total
+  max_position_per_asset: 0.2    # 20% of capital per asset
+  max_position_per_exchange: 0.4 # 40% of capital per exchange

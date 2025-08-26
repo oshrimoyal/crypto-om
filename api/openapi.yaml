@@ -1,0 +1,74 @@
+openapi: 3.0.3
+info:
+  title: Crypto‑OM Trading API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is up
+  /signals:
+    post:
+      summary: Submit a new signal (internal use)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signal'
+      responses:
+        '201':
+          description: Signal accepted
+  /orders:
+    post:
+      summary: Submit an order for execution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrder'
+      responses:
+        '201':
+          description: Order received
+    get:
+      summary: List orders
+      responses:
+        '200':
+          description: A list of orders
+components:
+  schemas:
+    Signal:
+      type: object
+      properties:
+        strategy:
+          type: string
+        market:
+          type: string
+        timeframe:
+          type: string
+        direction:
+          type: string
+        strength:
+          type: number
+        parameters:
+          type: object
+      required: [strategy, market, direction, strength]
+    NewOrder:
+      type: object
+      properties:
+        exchange:
+          type: string
+        symbol:
+          type: string
+        type:
+          type: string
+        side:
+          type: string
+        quantity:
+          type: number
+        price:
+          type: number
+      required: [exchange, symbol, type, side, quantity]

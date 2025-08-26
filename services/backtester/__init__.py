@@ -1,0 +1,1 @@
+"""Event‑driven backtester package (placeholder)."""
